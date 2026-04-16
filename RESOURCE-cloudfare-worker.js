@@ -43,8 +43,8 @@ export default {
       const requestBody = {
         model: "gpt-4o-search-preview",
         messages: incomingMessages,
-        max_tokens: 900,
-        temperature: 0.5,
+        max_tokens: 800,
+        temperature: 0.7,
       };
 
       requestBody.web_search_options = {};
