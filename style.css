@@ -64,6 +64,7 @@ body {
   position: relative;
   display: flex;
   align-items: center;
+  min-width: 0;
 }
 
 .search-field i,
@@ -138,6 +139,10 @@ body {
 
 .toggle-products-btn:hover {
   border-color: var(--loreal-gold);
+}
+
+.toggle-products-btn[hidden] {
+  display: none !important;
 }
 
 .product-card {
@@ -443,9 +448,7 @@ body {
 
 [dir="rtl"] .search-section {
   direction: rtl;
-}
-
-[dir="rtl"] .search-section {
+  justify-content: end;
   grid-template-columns: minmax(220px, 1.2fr) minmax(0, 6fr);
 }
 
@@ -477,9 +480,6 @@ body {
 
 [dir="rtl"] .products-grid {
   direction: rtl;
-}
-
-[dir="rtl"] .products-grid {
   grid-auto-flow: dense;
 }
 
@@ -502,6 +502,10 @@ body {
 
 [dir="rtl"] .chatbox {
   direction: rtl;
+}
+
+[dir="rtl"] .toggle-products-btn {
+  margin: -6px 0 0 auto;
 }
 
 [dir="rtl"] .chat-window {

@@ -12,7 +12,7 @@ const userInput = document.getElementById("userInput");
 const sendBtn = document.getElementById("sendBtn");
 
 /* Replace this with your deployed Cloudflare Worker URL. */
-const workerUrl = "https://YOUR-WORKER-URL.workers.dev/";
+const workerUrl = "https://wanderbot-worker.sgracia3.workers.dev/";
 
 /* localStorage key keeps the selected products saved after refresh. */
 const selectedProductsStorageKey = "loreal-selected-products";
@@ -169,10 +169,12 @@ function updateProductToggleButton() {
 
   if (!hasExtraProducts) {
     toggleProductsButton.hidden = true;
+    toggleProductsButton.style.display = "none";
     return;
   }
 
   toggleProductsButton.hidden = false;
+  toggleProductsButton.style.display = "block";
   toggleProductsButton.textContent = showAllProducts
     ? "Show less items"
     : "Show more products";
@@ -187,6 +189,7 @@ function renderProducts() {
       </div>
     `;
     toggleProductsButton.hidden = true;
+    toggleProductsButton.style.display = "none";
     return;
   }
 
