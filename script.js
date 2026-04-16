@@ -30,10 +30,13 @@ const selectedProductIds = new Set();
 const systemMessage = {
   role: "system",
   content:
-    "You are a L'Oreal Beauty Advisor. Help users build routines using the selected products and beauty goals. Keep responses concise and beginner-friendly. Stay focused on skincare, haircare, makeup, fragrance, and grooming. Include useful current sources with links.",
+    "You are the L'Oreal Beauty Advisor chatbot. You are a chatbot that helps users discover and understand L'Oreal's extensive range of products-makeup, skincare, haircare, and fragrances-as well as provide personalized routines and recommendations. You are a branded chatbot that helps customers navigate L'Oreal's extensive product catalog and receive tailored recommendations. Keep responses focused on L'Oreal products, routines, ingredients, and beauty guidance. If a user asks something unrelated, politely redirect to L'Oreal beauty topics. Keep answers concise and beginner-friendly. If you share links, use official L'Oreal webpages or official webpages from brands related to L'Oreal.",
 };
 
 const messages = [systemMessage];
+
+/* Keep track of selected products for routine-link formatting. */
+let routineLinkProducts = [];
 
 /* Escape HTML so plain AI text cannot break the chat layout. */
 function escapeHtml(text) {
@@ -45,15 +48,73 @@ function escapeHtml(text) {
     .replaceAll("'", "&#39;");
 }
 
-/* Convert plain URLs into clickable links in assistant messages. */
-function formatAssistantText(text) {
-  const safeText = escapeHtml(text);
-  const withLinks = safeText.replace(
-    /(https?:\/\/[^\s]+)/g,
-    '<a href="$1" target="_blank" rel="noopener noreferrer">$1<\/a>',
+/* Convert markdown-style links into HTML anchor tags. */
+function convertMarkdownLinks(text) {
+  return text.replace(
+    /\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g,
+    '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>',
+  );
+}
+
+/* Escape special regex characters so product names can be matched safely. */
+function escapeRegExp(text) {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+/* Build a web search URL that aims for official product pages. */
+function buildOfficialSearchUrl(product) {
+  const query = `${product.brand} ${product.name} official site`;
+  return `https://www.google.com/search?q=${encodeURIComponent(query)}`;
+}
+
+/* Replace selected product names with markdown links to official web searches. */
+function injectSelectedProductLinks(text, selectedProducts) {
+  if (!Array.isArray(selectedProducts) || selectedProducts.length === 0) {
+    return text;
+  }
+
+  let updatedText = text;
+  const productsByLongestName = [...selectedProducts].sort(
+    (a, b) => b.name.length - a.name.length,
   );
 
-  return withLinks.replaceAll("\n", "<br>");
+  productsByLongestName.forEach((product) => {
+    const productNamePattern = new RegExp(escapeRegExp(product.name), "g");
+    const link = `[${product.name}](${buildOfficialSearchUrl(product)})`;
+    updatedText = updatedText.replace(productNamePattern, link);
+  });
+
+  return updatedText;
+}
+
+/* Convert assistant text into paragraph blocks with clickable links. */
+function formatAssistantText(text, selectedProducts = []) {
+  /* Clean up common malformed list output such as "- !Product Name". */
+  const cleanedText = text.replace(/-\s*!/g, "- ");
+  const withProductLinks = injectSelectedProductLinks(
+    cleanedText,
+    selectedProducts,
+  );
+  const safeText = escapeHtml(withProductLinks);
+
+  return safeText
+    .split("\n\n")
+    .filter((paragraph) => paragraph.trim() !== "")
+    .map((paragraph) => `<p>${convertMarkdownLinks(paragraph)}</p>`)
+    .join("");
+}
+
+/* Return a visible role label for each chat bubble. */
+function getRoleLabel(role) {
+  if (role === "user") {
+    return "YOU";
+  }
+
+  if (role === "assistant") {
+    return "BEAUTY ADVISOR";
+  }
+
+  return "CHAT";
 }
 
 /* Add one message bubble to the chat window. */
@@ -61,11 +122,20 @@ function appendMessage(role, text, isHtml = false) {
   const message = document.createElement("div");
   message.className = `chat-message ${role}`;
 
+  const label = document.createElement("strong");
+  label.className = "chat-message-label";
+  label.textContent = getRoleLabel(role);
+
+  const content = document.createElement("div");
+  content.className = "chat-message-content";
+
   if (isHtml) {
-    message.innerHTML = text;
+    content.innerHTML = text;
   } else {
-    message.textContent = text;
+    content.textContent = text;
   }
+
+  message.append(label, content);
 
   chatWindow.appendChild(message);
   chatWindow.scrollTop = chatWindow.scrollHeight;
@@ -293,8 +363,14 @@ async function sendMessagesToWorker() {
 }
 
 /* Add the user message, call the worker, and render the assistant response. */
-async function askAssistant(promptText) {
-  appendMessage("user", promptText);
+async function askAssistant(
+  promptText,
+  { showUserMessage = true, selectedProductsForLinks = [] } = {},
+) {
+  if (showUserMessage) {
+    appendMessage("user", promptText);
+  }
+
   const loadingMessage = appendMessage("assistant", "Thinking...");
 
   messages.push({ role: "user", content: promptText });
@@ -307,10 +383,19 @@ async function askAssistant(promptText) {
       "I could not create a response yet. Please try one more time.";
 
     messages.push({ role: "assistant", content: reply });
-    loadingMessage.innerHTML = formatAssistantText(reply);
+    const loadingContent = loadingMessage.querySelector(
+      ".chat-message-content",
+    );
+    loadingContent.innerHTML = formatAssistantText(
+      reply,
+      selectedProductsForLinks,
+    );
   } catch (error) {
     console.error("Worker request failed:", error);
-    loadingMessage.textContent =
+    const loadingContent = loadingMessage.querySelector(
+      ".chat-message-content",
+    );
+    loadingContent.textContent =
       "The request failed. Check your Cloudflare Worker URL and try again.";
 
     if (messages[messages.length - 1]?.role === "user") {
@@ -328,6 +413,8 @@ async function generateRoutineFromSelection() {
     selectedProductIds.has(product.id),
   );
 
+  routineLinkProducts = selectedProducts;
+
   if (selectedProducts.length === 0) {
     appendMessage(
       "assistant",
@@ -343,7 +430,10 @@ async function generateRoutineFromSelection() {
     2,
   )}\n\nPlease format the response with:\n1) Morning routine\n2) Evening routine\n3) Weekly tips\n4) Safety notes\nKeep it concise and clear for beginners.`;
 
-  await askAssistant(routinePrompt);
+  await askAssistant(routinePrompt, {
+    showUserMessage: false,
+    selectedProductsForLinks: routineLinkProducts,
+  });
 }
 
 /* Product card interactions: select card and toggle descriptions */
@@ -426,7 +516,10 @@ chatForm.addEventListener("submit", async (event) => {
   }
 
   userInput.value = "";
-  await askAssistant(promptText);
+  await askAssistant(promptText, {
+    showUserMessage: true,
+    selectedProductsForLinks: routineLinkProducts,
+  });
 });
 
 /* Load products, restore saved state, and render the initial UI. */

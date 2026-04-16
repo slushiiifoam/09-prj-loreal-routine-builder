@@ -345,10 +345,30 @@ body {
   animation: reveal 0.25s ease-out;
 }
 
+.chat-message-label {
+  display: block;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  margin-bottom: 4px;
+  opacity: 0.9;
+}
+
+.chat-message-content p {
+  margin: 0 0 8px;
+}
+
+.chat-message-content p:last-child {
+  margin-bottom: 0;
+}
+
 .chat-message.user {
   align-self: flex-end;
   background: var(--ink);
   color: #fff;
+}
+
+.chat-message.user .chat-message-label {
+  color: #f4dfe4;
 }
 
 .chat-message.assistant {
@@ -356,6 +376,10 @@ body {
   background: #fff6dc;
   border: 1px solid #edd8a8;
   color: #2f2f2f;
+}
+
+.chat-message.assistant .chat-message-label {
+  color: #8a2d00;
 }
 
 .chat-message.assistant a {
