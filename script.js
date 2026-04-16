@@ -30,77 +30,28 @@ const selectedProductIds = new Set();
 const systemMessage = {
   role: "system",
   content:
-    "You are the L'Oreal Beauty Advisor chatbot. You are a chatbot that helps users discover and understand L'Oreal's extensive range of products-makeup, skincare, haircare, and fragrances-as well as provide personalized routines and recommendations. You are a branded chatbot that helps customers navigate L'Oreal's extensive product catalog and receive tailored recommendations. Keep responses focused on L'Oreal products, routines, ingredients, and beauty guidance. If a user asks something unrelated, politely redirect to L'Oreal beauty topics. Keep answers concise and beginner-friendly. If you share links, use official L'Oreal webpages or official webpages from brands related to L'Oreal.",
+    "You are the L'Oreal Beauty Advisor chatbot. You help users discover and understand L'Oreal's product portfolio, including L'Oreal family brands such as CeraVe, La Roche-Posay, Vichy, Kiehl's, Lancome, Maybelline, Garnier, and others, and provide personalized routines and recommendations. Keep responses focused on L'Oreal portfolio products, routines, ingredients, and beauty guidance. If a user asks something unrelated, politely redirect to L'Oreal beauty topics. Keep answers concise and beginner-friendly. Never use product image URLs as product links. Instead, search the web and provide exact official product page links from L'Oreal or official L'Oreal-family brand websites only. Do not say that these brands are outside your specialty. Format links as markdown like [Product Name](https://...).",
 };
 
 const messages = [systemMessage];
 
-/* Keep track of selected products for routine-link formatting. */
-let routineLinkProducts = [];
-
-/* Escape HTML so plain AI text cannot break the chat layout. */
-function escapeHtml(text) {
-  return text
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#39;");
-}
-
 /* Convert markdown-style links into HTML anchor tags. */
-function convertMarkdownLinks(text) {
+function convertLinks(text) {
   return text.replace(
     /\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g,
     '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>',
   );
 }
 
-/* Escape special regex characters so product names can be matched safely. */
-function escapeRegExp(text) {
-  return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-
-/* Build a web search URL that aims for official product pages. */
-function buildOfficialSearchUrl(product) {
-  const query = `${product.brand} ${product.name} official site`;
-  return `https://www.google.com/search?q=${encodeURIComponent(query)}`;
-}
-
-/* Replace selected product names with markdown links to official web searches. */
-function injectSelectedProductLinks(text, selectedProducts) {
-  if (!Array.isArray(selectedProducts) || selectedProducts.length === 0) {
-    return text;
-  }
-
-  let updatedText = text;
-  const productsByLongestName = [...selectedProducts].sort(
-    (a, b) => b.name.length - a.name.length,
-  );
-
-  productsByLongestName.forEach((product) => {
-    const productNamePattern = new RegExp(escapeRegExp(product.name), "g");
-    const link = `[${product.name}](${buildOfficialSearchUrl(product)})`;
-    updatedText = updatedText.replace(productNamePattern, link);
-  });
-
-  return updatedText;
-}
-
 /* Convert assistant text into paragraph blocks with clickable links. */
-function formatAssistantText(text, selectedProducts = []) {
+function formatAssistantText(text) {
   /* Clean up common malformed list output such as "- !Product Name". */
   const cleanedText = text.replace(/-\s*!/g, "- ");
-  const withProductLinks = injectSelectedProductLinks(
-    cleanedText,
-    selectedProducts,
-  );
-  const safeText = escapeHtml(withProductLinks);
 
-  return safeText
+  return cleanedText
     .split("\n\n")
     .filter((paragraph) => paragraph.trim() !== "")
-    .map((paragraph) => `<p>${convertMarkdownLinks(paragraph)}</p>`)
+    .map((paragraph) => `<p>${convertLinks(paragraph)}</p>`)
     .join("");
 }
 
@@ -363,10 +314,7 @@ async function sendMessagesToWorker() {
 }
 
 /* Add the user message, call the worker, and render the assistant response. */
-async function askAssistant(
-  promptText,
-  { showUserMessage = true, selectedProductsForLinks = [] } = {},
-) {
+async function askAssistant(promptText, { showUserMessage = true } = {}) {
   if (showUserMessage) {
     appendMessage("user", promptText);
   }
@@ -386,10 +334,7 @@ async function askAssistant(
     const loadingContent = loadingMessage.querySelector(
       ".chat-message-content",
     );
-    loadingContent.innerHTML = formatAssistantText(
-      reply,
-      selectedProductsForLinks,
-    );
+    loadingContent.innerHTML = formatAssistantText(reply);
   } catch (error) {
     console.error("Worker request failed:", error);
     const loadingContent = loadingMessage.querySelector(
@@ -413,8 +358,6 @@ async function generateRoutineFromSelection() {
     selectedProductIds.has(product.id),
   );
 
-  routineLinkProducts = selectedProducts;
-
   if (selectedProducts.length === 0) {
     appendMessage(
       "assistant",
@@ -432,7 +375,6 @@ async function generateRoutineFromSelection() {
 
   await askAssistant(routinePrompt, {
     showUserMessage: false,
-    selectedProductsForLinks: routineLinkProducts,
   });
 }
 
@@ -518,7 +460,6 @@ chatForm.addEventListener("submit", async (event) => {
   userInput.value = "";
   await askAssistant(promptText, {
     showUserMessage: true,
-    selectedProductsForLinks: routineLinkProducts,
   });
 });
 
@@ -535,7 +476,7 @@ async function initializeApp() {
 
     appendMessage(
       "assistant",
-      "Hi! Select products, click Generate Routine, then ask follow-up questions.",
+      "Welcome to your L'Oreal Beauty Advisor. Select products to build a personalized routine, then ask me follow-up questions anytime.",
     );
   } catch (error) {
     console.error("Could not initialize app:", error);
