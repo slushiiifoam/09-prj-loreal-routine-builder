@@ -193,18 +193,31 @@ function normalizeImageUrl(url) {
   }
 }
 
+/* Normalize text for accent-insensitive searching (e.g., L'Oréal matches loreal). */
+function normalizeForSearch(text) {
+  return (text || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+}
+
+/* Build one searchable string per product so matching logic stays simple. */
+function getProductSearchText(product) {
+  return normalizeForSearch(
+    `${product.name} ${product.brand} ${product.category} ${product.description}`,
+  );
+}
+
 /* Update the button that reveals the rest of the products. */
 function updateProductToggleButton() {
   const hasExtraProducts = filteredProducts.length > 6;
 
   if (!hasExtraProducts) {
     toggleProductsButton.hidden = true;
-    toggleProductsButton.style.display = "none";
     return;
   }
 
   toggleProductsButton.hidden = false;
-  toggleProductsButton.style.display = "block";
   toggleProductsButton.textContent = showAllProducts
     ? "Show less items"
     : "Show more products";
@@ -219,7 +232,6 @@ function renderProducts() {
       </div>
     `;
     toggleProductsButton.hidden = true;
-    toggleProductsButton.style.display = "none";
     return;
   }
 
@@ -282,18 +294,15 @@ function renderSelectedProducts() {
 /* Apply the search and category filters together. */
 function applyFilters() {
   const selectedCategory = categoryFilter.value;
-  const searchText = productSearch.value.trim().toLowerCase();
+  const normalizedSearchText = normalizeForSearch(productSearch.value.trim());
 
   filteredProducts = allProducts.filter((product) => {
     const categoryMatches =
       selectedCategory === "all" || product.category === selectedCategory;
 
     const searchMatches =
-      searchText.length === 0 ||
-      product.name.toLowerCase().includes(searchText) ||
-      product.brand.toLowerCase().includes(searchText) ||
-      product.category.toLowerCase().includes(searchText) ||
-      product.description.toLowerCase().includes(searchText);
+      normalizedSearchText.length === 0 ||
+      getProductSearchText(product).includes(normalizedSearchText);
 
     return categoryMatches && searchMatches;
   });
@@ -432,14 +441,10 @@ selectedProductsList.addEventListener("click", (event) => {
 });
 
 /* Re-render products when the category changes. */
-categoryFilter.addEventListener("change", () => {
-  applyFilters();
-});
+categoryFilter.addEventListener("change", applyFilters);
 
 /* Re-render products as the user types in the search field. */
-productSearch.addEventListener("input", () => {
-  applyFilters();
-});
+productSearch.addEventListener("input", applyFilters);
 
 /* Expand or collapse the product list beyond the first six items. */
 toggleProductsButton.addEventListener("click", () => {
