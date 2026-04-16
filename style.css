@@ -334,7 +334,7 @@ body {
   background: #fbfbfb;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 14px;
 }
 
 .chat-message {
@@ -342,7 +342,13 @@ body {
   padding: 10px 12px;
   border-radius: 12px;
   line-height: 1.45;
+  margin: 2px 0;
   animation: reveal 0.25s ease-out;
+}
+
+.product-card img.image-fallback {
+  object-fit: contain;
+  background: #fff;
 }
 
 .chat-message-label {

@@ -184,6 +184,15 @@ function clearSelectedProducts() {
   renderSelectedProducts();
 }
 
+/* Normalize image URLs so special characters like % are safely encoded. */
+function normalizeImageUrl(url) {
+  try {
+    return encodeURI(url);
+  } catch (error) {
+    return url;
+  }
+}
+
 /* Update the button that reveals the rest of the products. */
 function updateProductToggleButton() {
   const hasExtraProducts = filteredProducts.length > 6;
@@ -221,10 +230,11 @@ function renderProducts() {
   productsContainer.innerHTML = visibleProducts
     .map((product) => {
       const isSelected = selectedProductIds.has(product.id);
+      const normalizedImageUrl = normalizeImageUrl(product.image);
 
       return `
         <article class="product-card ${isSelected ? "selected" : ""}" data-product-id="${product.id}">
-          <img src="${product.image}" alt="${product.name}">
+          <img src="${normalizedImageUrl}" alt="${product.name}" onerror="this.onerror=null;this.src='img/loreal-logo.png';this.classList.add('image-fallback');">
           <div class="product-info">
             <h3>${product.name}</h3>
             <p class="product-brand">${product.brand}</p>
@@ -261,7 +271,7 @@ function renderSelectedProducts() {
     .map(
       (product) => `
         <button type="button" class="selected-chip" data-remove-id="${product.id}">
-          ${product.name}
+          ${product.brand} - ${product.name}
           <span aria-hidden="true">&times;</span>
         </button>
       `,
