@@ -18,7 +18,7 @@ const workerUrl = "https://wanderbot-worker.sgracia3.workers.dev/";
 const selectedProductsStorageKey = "loreal-selected-products";
 
 /* RTL languages that should switch the layout direction automatically. */
-const rtlLanguages = ["ar", "he", "fa", "ur", "ps", "dv", "ku", "ug", "yi"];
+const rtlLanguages = ["ar", "he", "fa", "ur", "yi", "ps", "ku", "dv"];
 
 /* App state stores all products, filtered products, and selected product ids. */
 let allProducts = [];
@@ -135,24 +135,19 @@ function restoreSelectedProducts() {
   }
 }
 
-/* Apply the layout direction to the page. */
-function applyLayoutDirection(direction) {
-  const nextDirection = direction === "rtl" ? "rtl" : "ltr";
-  document.documentElement.setAttribute("dir", nextDirection);
-}
+/* Check the current page language and apply RTL/LTR automatically. */
+function updateRTL() {
+  const html = document.documentElement;
+  const lang = html.getAttribute("lang") || navigator.language || "en";
+  const normalizedLang = lang.toLowerCase();
 
-/* Detect the best direction from the current document or browser language. */
-function getAutoDirection() {
-  const pageLanguage =
-    document.documentElement.lang || navigator.language || "en";
-  const baseLanguage = pageLanguage.toLowerCase().split("-")[0];
-
-  return rtlLanguages.includes(baseLanguage) ? "rtl" : "ltr";
-}
-
-/* Apply the automatic direction based on the browser or page language. */
-function restoreLayoutDirection() {
-  applyLayoutDirection(getAutoDirection());
+  if (rtlLanguages.some((rtlLang) => normalizedLang.startsWith(rtlLang))) {
+    html.setAttribute("dir", "rtl");
+    document.body.classList.add("rtl");
+  } else {
+    html.setAttribute("dir", "ltr");
+    document.body.classList.remove("rtl");
+  }
 }
 
 /* Toggle a product in or out of the selected set. */
@@ -483,7 +478,6 @@ async function initializeApp() {
   try {
     allProducts = await loadProducts();
     restoreSelectedProducts();
-    restoreLayoutDirection();
 
     filteredProducts = [...allProducts];
     renderProducts();
@@ -502,5 +496,18 @@ async function initializeApp() {
     `;
   }
 }
+
+/* Run once on load and watch for language changes (like browser translation). */
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", updateRTL);
+} else {
+  updateRTL();
+}
+
+const rtlObserver = new MutationObserver(updateRTL);
+rtlObserver.observe(document.documentElement, {
+  attributes: true,
+  attributeFilter: ["lang"],
+});
 
 initializeApp();
