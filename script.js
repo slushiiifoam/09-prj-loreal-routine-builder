@@ -390,7 +390,7 @@ async function generateRoutineFromSelection() {
     selectedProducts,
     null,
     2,
-  )}\n\nPlease format the response with:\n1) Morning routine\n2) Evening routine\n3) Weekly tips\n4) Safety notes\nKeep it concise and clear for beginners.`;
+  )}\n\nPlease format the response with:\n1) Morning routine\n2) Evening routine\n3) Weekly tips\n4) Safety notes\nKeep it concise and clear for beginners. Include links to official product pages when possible.`;
 
   await askAssistant(routinePrompt, {
     showUserMessage: false,
