@@ -298,6 +298,10 @@ body {
 .generate-btn {
   background: linear-gradient(90deg, var(--loreal-red), #db365d);
   color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
 .generate-btn:hover {
@@ -476,6 +480,21 @@ body {
   text-align: right;
 }
 
+[dir="rtl"] .product-info {
+  text-align: right;
+}
+
+[dir="rtl"] .product-brand,
+[dir="rtl"] .product-category,
+[dir="rtl"] .product-description {
+  text-align: right;
+}
+
+[dir="rtl"] .description-toggle {
+  margin-left: 0;
+  margin-right: auto;
+}
+
 [dir="rtl"] .search-section {
   direction: rtl;
   justify-content: end;
@@ -535,7 +554,7 @@ body {
 }
 
 [dir="rtl"] .toggle-products-btn {
-  margin: -6px 0 0 auto;
+  margin: -6px auto 0;
 }
 
 [dir="rtl"] .chat-window {
@@ -544,6 +563,14 @@ body {
 
 [dir="rtl"] .chat-form {
   flex-direction: row-reverse;
+}
+
+[dir="rtl"] .generate-btn {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] #sendBtn i {
+  transform: scaleX(-1);
 }
 
 [dir="rtl"] .chat-message.user {
