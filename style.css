@@ -217,6 +217,145 @@ body {
   color: #3f3f3f;
 }
 
+body.modal-open {
+  overflow: hidden;
+}
+
+.product-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+}
+
+.product-modal[hidden] {
+  display: none;
+}
+
+.product-modal__overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(21, 21, 21, 0.56);
+  backdrop-filter: blur(6px);
+}
+
+.product-modal__panel {
+  position: relative;
+  z-index: 1;
+  width: min(920px, 100%);
+  max-height: min(88vh, 860px);
+  overflow: auto;
+  border-radius: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  background:
+    radial-gradient(
+      circle at top right,
+      rgba(227, 165, 53, 0.12),
+      transparent 26%
+    ),
+    linear-gradient(180deg, #fffdf8 0%, #f7f1e7 100%);
+  box-shadow: 0 24px 60px rgba(21, 21, 21, 0.24);
+  padding: 24px;
+}
+
+.product-modal__close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--ink);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+.product-modal__close:hover {
+  border-color: var(--loreal-gold);
+}
+
+.product-modal__eyebrow {
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--loreal-red);
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.product-modal__title {
+  font-size: clamp(24px, 3vw, 34px);
+  line-height: 1.15;
+  margin-bottom: 18px;
+}
+
+.product-modal__content {
+  display: grid;
+  grid-template-columns: minmax(220px, 320px) minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.product-modal__image {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: contain;
+  border-radius: 18px;
+  padding: 18px;
+  background: #fff;
+  border: 1px solid var(--line);
+  box-shadow: inset 0 0 0 1px rgba(227, 165, 53, 0.06);
+}
+
+.product-modal__details {
+  min-width: 0;
+}
+
+.product-modal__list {
+  display: grid;
+  gap: 14px;
+}
+
+.product-modal__list div {
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.product-modal__list dt {
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--loreal-red);
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.product-modal__list dd {
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--ink);
+  word-break: break-word;
+}
+
+.product-modal__list a {
+  color: var(--ink);
+  font-weight: 600;
+  text-decoration: none;
+  border-bottom: 1px solid var(--loreal-gold);
+}
+
+.product-modal__list a:hover {
+  color: var(--loreal-red);
+  border-bottom-color: var(--loreal-red);
+}
+
 .placeholder-message {
   grid-column: 1 / -1;
   width: 100%;
@@ -495,6 +634,22 @@ body {
   margin-right: auto;
 }
 
+[dir="rtl"] .product-modal__close {
+  right: auto;
+  left: 16px;
+}
+
+[dir="rtl"] .product-modal__content {
+  direction: rtl;
+}
+
+[dir="rtl"] .product-modal__title,
+[dir="rtl"] .product-modal__eyebrow,
+[dir="rtl"] .product-modal__list dt,
+[dir="rtl"] .product-modal__list dd {
+  text-align: right;
+}
+
 [dir="rtl"] .search-section {
   direction: rtl;
   justify-content: end;
@@ -623,6 +778,19 @@ body {
 
   .products-grid {
     grid-template-columns: 1fr;
+  }
+
+  .product-modal__panel {
+    padding: 20px;
+  }
+
+  .product-modal__content {
+    grid-template-columns: 1fr;
+  }
+
+  .product-modal__close {
+    top: 12px;
+    right: 12px;
   }
 
   .placeholder-message {

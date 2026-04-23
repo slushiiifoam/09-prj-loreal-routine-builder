@@ -10,6 +10,16 @@ const chatForm = document.getElementById("chatForm");
 const chatWindow = document.getElementById("chatWindow");
 const userInput = document.getElementById("userInput");
 const sendBtn = document.getElementById("sendBtn");
+const productModal = document.getElementById("productModal");
+const productModalTitle = document.getElementById("productModalTitle");
+const productModalImage = document.getElementById("productModalImage");
+const productModalBrand = document.getElementById("productModalBrand");
+const productModalCategory = document.getElementById("productModalCategory");
+const productModalName = document.getElementById("productModalName");
+const productModalImageUrl = document.getElementById("productModalImageUrl");
+const productModalDescription = document.getElementById(
+  "productModalDescription",
+);
 
 /* Replace this with your deployed Cloudflare Worker URL. */
 const workerUrl = "https://wanderbot-worker.sgracia3.workers.dev/";
@@ -25,6 +35,7 @@ let allProducts = [];
 let filteredProducts = [];
 let showAllProducts = false;
 const selectedProductIds = new Set();
+let lastFocusedElement = null;
 
 /* Keep one conversation array so follow-up messages remember full context. */
 const systemMessage = {
@@ -163,6 +174,44 @@ function toggleProductSelection(productId) {
   renderSelectedProducts();
 }
 
+/* Open the product details modal for a specific item. */
+function openProductModal(productId) {
+  const product = allProducts.find((item) => item.id === productId);
+
+  if (!product || !productModal) {
+    return;
+  }
+
+  lastFocusedElement = document.activeElement;
+
+  productModalTitle.textContent = `${product.brand} - ${product.name}`;
+  productModalImage.src = normalizeImageUrl(product.image);
+  productModalImage.alt = product.name;
+  productModalBrand.textContent = product.brand;
+  productModalCategory.textContent = product.category;
+  productModalName.textContent = product.name;
+  productModalImageUrl.innerHTML = `<a href="${product.image}" target="_blank" rel="noopener noreferrer">Open product image</a>`;
+  productModalDescription.textContent = product.description;
+
+  productModal.hidden = false;
+  document.body.classList.add("modal-open");
+  productModal.querySelector(".product-modal__close")?.focus();
+}
+
+/* Close the product details modal. */
+function closeProductModal() {
+  if (!productModal || productModal.hidden) {
+    return;
+  }
+
+  productModal.hidden = true;
+  document.body.classList.remove("modal-open");
+
+  if (lastFocusedElement && typeof lastFocusedElement.focus === "function") {
+    lastFocusedElement.focus();
+  }
+}
+
 /* Remove one product from the selected set. */
 function removeSelectedProduct(productId) {
   selectedProductIds.delete(productId);
@@ -247,12 +296,8 @@ function renderProducts() {
             <p class="product-brand">${product.brand}</p>
             <p class="product-category">${product.category}</p>
             <button type="button" class="description-toggle" data-description-toggle="${product.id}">
-              Show Description
+              View Details
             </button>
-            <!-- Product descriptions stay hidden until the user expands them. -->
-            <p class="product-description" id="description-${product.id}" hidden>
-              ${product.description}
-            </p>
           </div>
         </article>
       `;
@@ -399,17 +444,7 @@ productsContainer.addEventListener("click", (event) => {
 
   if (toggleButton) {
     const productId = Number(toggleButton.dataset.descriptionToggle);
-    const description = document.getElementById(`description-${productId}`);
-
-    if (!description) {
-      return;
-    }
-
-    const isHidden = description.hidden;
-    description.hidden = !isHidden;
-    toggleButton.textContent = isHidden
-      ? "Hide Description"
-      : "Show Description";
+    openProductModal(productId);
     return;
   }
 
@@ -455,6 +490,20 @@ generateRoutineButton.addEventListener("click", async () => {
 /* Clear all selections when the user clicks the reset button. */
 clearSelectedButton.addEventListener("click", () => {
   clearSelectedProducts();
+});
+
+/* Close the modal when the overlay or close button is clicked. */
+productModal.addEventListener("click", (event) => {
+  if (event.target.closest("[data-modal-close]")) {
+    closeProductModal();
+  }
+});
+
+/* Allow the Escape key to dismiss the modal quickly. */
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && productModal && !productModal.hidden) {
+    closeProductModal();
+  }
 });
 
 /* Send follow-up questions through the same conversation history. */

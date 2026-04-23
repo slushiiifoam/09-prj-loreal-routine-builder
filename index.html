@@ -137,6 +137,54 @@
       </footer>
     </div>
 
+    <div id="productModal" class="product-modal" hidden>
+      <div class="product-modal__overlay" data-modal-close></div>
+      <section
+        class="product-modal__panel"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="productModalTitle"
+      >
+        <button
+          type="button"
+          class="product-modal__close"
+          aria-label="Close product details"
+          data-modal-close
+        >
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+        <p class="product-modal__eyebrow">Product details</p>
+        <h2 id="productModalTitle" class="product-modal__title"></h2>
+        <div class="product-modal__content">
+          <img id="productModalImage" class="product-modal__image" alt="" />
+          <div class="product-modal__details">
+            <dl class="product-modal__list">
+              <div>
+                <dt>Brand</dt>
+                <dd id="productModalBrand"></dd>
+              </div>
+              <div>
+                <dt>Category</dt>
+                <dd id="productModalCategory"></dd>
+              </div>
+              <div>
+                <dt>Product</dt>
+                <dd id="productModalName"></dd>
+              </div>
+              <div>
+                <dt>Image</dt>
+                <dd id="productModalImageUrl"></dd>
+              </div>
+              <div>
+                <dt>Description</dt>
+                <dd id="productModalDescription"></dd>
+              </div>
+            </dl>
+          </div>
+        </div>
+      </section>
+    </div>
+
     <script src="script.js"></script>
   </body>
 </html>
