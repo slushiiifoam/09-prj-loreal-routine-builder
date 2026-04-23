@@ -567,4 +567,18 @@ rtlObserver.observe(document.documentElement, {
   attributeFilter: ["lang"],
 });
 
+/* Register a tiny service worker so the app can be installed on mobile. */
+async function registerServiceWorker() {
+  if (!("serviceWorker" in navigator)) {
+    return;
+  }
+
+  try {
+    await navigator.serviceWorker.register("sw.js");
+  } catch (error) {
+    console.error("Service worker registration failed:", error);
+  }
+}
+
 initializeApp();
+registerServiceWorker();
