@@ -301,6 +301,16 @@ body.modal-open {
   align-items: start;
 }
 
+.product-modal__image-link {
+  display: block;
+  border-radius: 18px;
+}
+
+.product-modal__image-link:hover .product-modal__image {
+  transform: translateY(-2px);
+  border-color: var(--loreal-gold);
+}
+
 .product-modal__image {
   width: 100%;
   aspect-ratio: 1 / 1;
@@ -310,6 +320,10 @@ body.modal-open {
   background: #fff;
   border: 1px solid var(--line);
   box-shadow: inset 0 0 0 1px rgba(227, 165, 53, 0.06);
+  transition:
+    transform 0.2s,
+    border-color 0.2s,
+    box-shadow 0.2s;
 }
 
 .product-modal__details {

@@ -156,7 +156,16 @@
         <p class="product-modal__eyebrow">Product details</p>
         <h2 id="productModalTitle" class="product-modal__title"></h2>
         <div class="product-modal__content">
-          <img id="productModalImage" class="product-modal__image" alt="" />
+          <a
+            id="productModalImageLink"
+            class="product-modal__image-link"
+            href="#"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Open product image in a new tab"
+          >
+            <img id="productModalImage" class="product-modal__image" alt="" />
+          </a>
           <div class="product-modal__details">
             <dl class="product-modal__list">
               <div>
@@ -170,10 +179,6 @@
               <div>
                 <dt>Product</dt>
                 <dd id="productModalName"></dd>
-              </div>
-              <div>
-                <dt>Image</dt>
-                <dd id="productModalImageUrl"></dd>
               </div>
               <div>
                 <dt>Description</dt>

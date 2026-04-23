@@ -16,7 +16,6 @@ const productModalImage = document.getElementById("productModalImage");
 const productModalBrand = document.getElementById("productModalBrand");
 const productModalCategory = document.getElementById("productModalCategory");
 const productModalName = document.getElementById("productModalName");
-const productModalImageUrl = document.getElementById("productModalImageUrl");
 const productModalDescription = document.getElementById(
   "productModalDescription",
 );
@@ -187,10 +186,10 @@ function openProductModal(productId) {
   productModalTitle.textContent = `${product.brand} - ${product.name}`;
   productModalImage.src = normalizeImageUrl(product.image);
   productModalImage.alt = product.name;
+  productModalImage.parentElement.href = product.image;
   productModalBrand.textContent = product.brand;
-  productModalCategory.textContent = product.category;
+  productModalCategory.textContent = titleCaseText(product.category);
   productModalName.textContent = product.name;
-  productModalImageUrl.innerHTML = `<a href="${product.image}" target="_blank" rel="noopener noreferrer">Open product image</a>`;
   productModalDescription.textContent = product.description;
 
   productModal.hidden = false;
@@ -243,6 +242,15 @@ function normalizeForSearch(text) {
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase();
+}
+
+/* Convert labels like "skincare" into "Skincare" for display. */
+function titleCaseText(text) {
+  return (text || "")
+    .split(" ")
+    .filter((word) => word.length > 0)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(" ");
 }
 
 /* Build one searchable string per product so matching logic stays simple. */
