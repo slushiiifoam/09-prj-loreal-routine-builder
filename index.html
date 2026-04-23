@@ -23,79 +23,87 @@
         <h1 class="site-title">Smart Routine &amp; Product Advisor</h1>
       </header>
 
-      <!-- Category Filter -->
-      <div class="search-section">
-        <label class="search-field" for="productSearch">
-          <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-          <input
-            id="productSearch"
-            type="search"
-            placeholder="Search products by name, brand, or keyword"
-            aria-label="Search products"
-          />
-        </label>
-        <label class="filter-field" for="categoryFilter">
-          <i class="fa-solid fa-filter" aria-hidden="true"></i>
-          <select id="categoryFilter" aria-label="Filter products by category">
-            <option value="all" selected>All Categories</option>
-            <option value="cleanser">Cleansers</option>
-            <option value="moisturizer">Moisturizers & Treatments</option>
-            <option value="skincare">Skincare Serums & Treatments</option>
-            <option value="haircare">Haircare</option>
-            <option value="makeup">Makeup</option>
-            <option value="hair color">Hair Color</option>
-            <option value="hair styling">Hair Styling</option>
-            <option value="men's grooming">Men's Grooming</option>
-            <option value="suncare">Suncare</option>
-            <option value="fragrance">Fragrance</option>
-          </select>
-        </label>
-      </div>
+      <main id="main-content">
+        <!-- Category Filter -->
+        <div class="search-section">
+          <label class="search-field" for="productSearch">
+            <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+            <input
+              id="productSearch"
+              type="search"
+              placeholder="Search products by name, brand, or keyword"
+              aria-label="Search products"
+            />
+          </label>
+          <label class="filter-field" for="categoryFilter">
+            <i class="fa-solid fa-filter" aria-hidden="true"></i>
+            <select
+              id="categoryFilter"
+              aria-label="Filter products by category"
+            >
+              <option value="all" selected>All Categories</option>
+              <option value="cleanser">Cleansers</option>
+              <option value="moisturizer">Moisturizers & Treatments</option>
+              <option value="skincare">Skincare Serums & Treatments</option>
+              <option value="haircare">Haircare</option>
+              <option value="makeup">Makeup</option>
+              <option value="hair color">Hair Color</option>
+              <option value="hair styling">Hair Styling</option>
+              <option value="men's grooming">Men's Grooming</option>
+              <option value="suncare">Suncare</option>
+              <option value="fragrance">Fragrance</option>
+            </select>
+          </label>
+        </div>
 
-      <!-- Products Grid -->
-      <div id="productsContainer" class="products-grid"></div>
-      <button
-        id="toggleProducts"
-        class="toggle-products-btn"
-        type="button"
-        hidden
-      >
-        Show more products
-      </button>
-
-      <!-- Selected Products -->
-      <div class="selected-products">
-        <h2>Selected Products</h2>
-        <div id="selectedProductsList"></div>
-        <button id="clearSelected" class="clear-selected-btn" type="button">
-          Clear Selected Products
-        </button>
-        <button id="generateRoutine" class="generate-btn">
-          <i class="fa-solid fa-wand-magic-sparkles"></i> Generate Routine
-        </button>
-      </div>
-
-      <!------- Chat Area ------->
-      <section class="chatbox">
-        <h2>Let's Build Your Routine</h2>
-        <div id="chatWindow" class="chat-window"></div>
-
-        <form id="chatForm" class="chat-form">
-          <label for="userInput" class="visually-hidden">Message</label>
-          <input
-            id="userInput"
-            name="userInput"
-            type="text"
-            placeholder="Ask me about products or routines…"
-            autocomplete="off"
-            required
-          />
-          <button type="submit" id="sendBtn" name="Send Input">
-            <i class="fa-solid fa-paper-plane"></i>
-            <span class="visually-hidden">Send</span>
+        <!-- Products Grid -->
+        <section aria-labelledby="productsHeading">
+          <h2 id="productsHeading" class="visually-hidden">Products</h2>
+          <div id="productsContainer" class="products-grid"></div>
+          <button
+            id="toggleProducts"
+            class="toggle-products-btn"
+            type="button"
+            hidden
+          >
+            Show more products
           </button>
-        </form>
-      </section>
+        </section>
+
+        <!-- Selected Products -->
+        <div class="selected-products">
+          <h2>Selected Products</h2>
+          <div id="selectedProductsList"></div>
+          <button id="clearSelected" class="clear-selected-btn" type="button">
+            Clear Selected Products
+          </button>
+          <button id="generateRoutine" class="generate-btn">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> Generate Routine
+          </button>
+        </div>
+
+        <!------- Chat Area ------->
+        <section class="chatbox">
+          <h2>Let's Build Your Routine</h2>
+          <div id="chatWindow" class="chat-window"></div>
+
+          <form id="chatForm" class="chat-form">
+            <label for="userInput" class="visually-hidden">Message</label>
+            <input
+              id="userInput"
+              name="userInput"
+              type="text"
+              placeholder="Ask me about products or routines…"
+              autocomplete="off"
+              required
+            />
+            <button type="submit" id="sendBtn" name="Send Input">
+              <i class="fa-solid fa-paper-plane"></i>
+              <span class="visually-hidden">Send</span>
+            </button>
+          </form>
+        </section>
+      </main>
 
       <!------- Footer Links ------->
       <footer class="site-footer">
